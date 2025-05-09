@@ -47,7 +47,7 @@ struct Stock: Identifiable, Decodable{
 
 // ref: https://polygon.io/docs/rest/stocks/tickers/ticker-overview
 
-struct PolygonTickerSearchResponse: Decodable {
+struct PolygonTickerSearchResponse {
     let results: [PolygonTicker]?
     let status: String?
     let requqestId: String?
@@ -80,4 +80,29 @@ struct PolygonTicker: Decodable, Identifiable {
     }
 }
 
-    
+
+// previous day close: /v2/aggs/ticker/{stocksTicker}/prev
+struct PolygonPrevDayCloseResponse: Decodable {
+    let ticker: String?
+    let status: String?
+    let results: [PolygonPrevDayData]?
+    let resultsCount: Int?
+}
+
+struct PolygonPrevDayData: Decodable {
+    let openPrice: Double // o = open price
+    let closePrice: Double // c = closing price
+    let highPrice: Double // h = high price
+    let lowPrice: Double // l = low price
+    let volume: Double? // v = volume
+    let volumeWeightedAveragePrice: Double? // vw = volume weighted average price ??? idk
+
+    enum CodingKeys: String, CodingKey {
+        case openPrice = "o"
+        case closePrice = "c"
+        case highPrice = "h"
+        case lowPrice = "l"
+        case volume = "v"
+        case volumeWeightedAveragePrice = "vw"
+    }
+}
