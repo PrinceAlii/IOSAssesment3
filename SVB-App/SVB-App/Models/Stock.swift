@@ -47,18 +47,18 @@ struct Stock: Identifiable, Decodable{
 
 // ref: https://polygon.io/docs/rest/stocks/tickers/ticker-overview
 
-struct PolygonTickerSearchResponse {
+struct PolygonTickerSearchResponse: Decodable {
     let results: [PolygonTicker]?
     let status: String?
-    let requqestId: String?
-    let count: Int?
-    
+    let requestId: String?
+    let count:   Int?
+
     enum CodingKeys: String, CodingKey {
         case results, status
         case requestId = "request_id"
         case count
     }
-}
+
 
 struct PolygonTicker: Decodable, Identifiable {
     let id = UUID()
