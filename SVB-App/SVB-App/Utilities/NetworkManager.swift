@@ -52,9 +52,9 @@ class NetworkManager {
        guard (200...299).contains(httpResponse.statusCode) else {
            // try and decode other error messages
            // add *POLYGON ERROR RESPONSE* later when I get to it
-           if let polygonError = try? JSONDecoder().decode(*POLYGON ERROR RESPONSE* .self, from: data) {
-                throw NetworkError.apiError("API Error: \(polygonError.message ?? "Unknown error") (Status: \(httpResponse.statusCode))")
-           }
+//           if let polygonError = try? JSONDecoder().decode(*POLYGON ERROR RESPONSE* .self, from: data) {
+//                throw NetworkError.apiError("API Error: \(polygonError.message ?? "Unknown error") (Status: \(httpResponse.statusCode))")
+//           }
            throw NetworkError.invalidResponse
        }
        
