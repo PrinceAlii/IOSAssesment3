@@ -1,6 +1,7 @@
 # Custom (For API Key & Mac files)
 *.env
 *.DS_Store
+Secrets.swift
 
 # Xcode
 #
