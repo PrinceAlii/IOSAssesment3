@@ -73,7 +73,7 @@ class StockService {
     // fetches a list of tickers and companiy info matching the query string
     private func fetchMatchingTickers(query: String) async throws -> [PolygonTicker] {
         let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        guard let url = URL(string: "\(polygonBaseURL)/v3/reference/tickers?search=\(encodedQuery)&active=true&limit=10&apiKey=\(apiKey)") else {
+        guard let url = URL(string: "\(polygonBaseURL)/v3/reference/tickers?search=\(encodedQuery)&active=true&limit=50&apiKey=\(apiKey)") else {
             throw ServiceError.urlConstructionFailed
         }
         print("fetching tickers from this url: \(url.absoluteString)")
