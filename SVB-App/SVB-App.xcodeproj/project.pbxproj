@@ -6,10 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		9C91FA3A2DCDB73400387D73 /* secret.env in Resources */ = {isa = PBXBuildFile; fileRef = 9C91FA392DCDB72000387D73 /* secret.env */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXContainerItemProxy section */
 		281C74262DC9FEF4007466D5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -31,15 +27,9 @@
 		281C74162DC9FEF2007466D5 /* SVB-App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SVB-App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		281C74252DC9FEF4007466D5 /* SVB-AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SVB-AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		281C742F2DC9FEF4007466D5 /* SVB-AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SVB-AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		9C91FA392DCDB72000387D73 /* secret.env */ = {isa = PBXFileReference; lastKnownFileType = text; path = secret.env; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		281C74182DC9FEF2007466D5 /* SVB-App */ = {
-			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "SVB-App";
-			sourceTree = "<group>";
-		};
 		281C74282DC9FEF4007466D5 /* SVB-AppTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "SVB-AppTests";
@@ -48,6 +38,11 @@
 		281C74322DC9FEF4007466D5 /* SVB-AppUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			path = "SVB-AppUITests";
+			sourceTree = "<group>";
+		};
+		9C91FA8F2DCEFC0900387D73 /* SVB-App */ = {
+			isa = PBXFileSystemSynchronizedRootGroup;
+			path = "SVB-App";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -80,11 +75,10 @@
 		281C740D2DC9FEF2007466D5 = {
 			isa = PBXGroup;
 			children = (
-				281C74182DC9FEF2007466D5 /* SVB-App */,
+				9C91FA8F2DCEFC0900387D73 /* SVB-App */,
 				281C74282DC9FEF4007466D5 /* SVB-AppTests */,
 				281C74322DC9FEF4007466D5 /* SVB-AppUITests */,
 				281C74172DC9FEF2007466D5 /* Products */,
-				9C91FA392DCDB72000387D73 /* secret.env */,
 			);
 			sourceTree = "<group>";
 		};
@@ -114,7 +108,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				281C74182DC9FEF2007466D5 /* SVB-App */,
+				9C91FA8F2DCEFC0900387D73 /* SVB-App */,
 			);
 			name = "SVB-App";
 			packageProductDependencies = (
@@ -218,7 +212,6 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9C91FA3A2DCDB73400387D73 /* secret.env in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -410,6 +403,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
@@ -438,6 +432,7 @@
 				INFOPLIST_KEY_UILaunchScreen_Generation = YES;
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPad = "UIInterfaceOrientationPortrait UIInterfaceOrientationPortraitUpsideDown UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
 				INFOPLIST_KEY_UISupportedInterfaceOrientations_iPhone = "UIInterfaceOrientationPortrait UIInterfaceOrientationLandscapeLeft UIInterfaceOrientationLandscapeRight";
+				IPHONEOS_DEPLOYMENT_TARGET = 18.0;
 				LD_RUNPATH_SEARCH_PATHS = (
 					"$(inherited)",
 					"@executable_path/Frameworks",
