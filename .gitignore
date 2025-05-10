@@ -71,3 +71,4 @@ fastlane/test_output
 *.env
 .DS_Store
 SVB-App/SVB-App/secrets.swift
+SVB-App/SVB-App/Secrets.swift
