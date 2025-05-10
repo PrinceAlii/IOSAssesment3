@@ -17,4 +17,3 @@ struct SVB_AppApp: App {
         }
     }
 }
-
