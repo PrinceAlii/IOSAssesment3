@@ -1,6 +1,7 @@
 # Custom (For API Key & Mac files)
 *.env
 *.DS_Store
+Secrets.swift
 
 # Xcode
 #
@@ -65,3 +66,4 @@ fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
 *.env
+.DS_Store
