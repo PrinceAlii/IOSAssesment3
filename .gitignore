@@ -3,6 +3,8 @@
 *.DS_Store
 Secrets.swift
 secrets.swift
+secret.swift
+Secret.swift
 
 # Xcode
 #
