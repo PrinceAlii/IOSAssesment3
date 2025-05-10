@@ -3,19 +3,19 @@
 //
 // represent a stock, properties populated from polygons API
 import Foundation
-    
-struct Stock: Identifiable, Decodable{
-    let id: String
+
+struct Stock: Identifiable, Decodable {
+    let id: String // the stocks ticker will be the ID
     let ticker: String
     let companyName: String
-    var currentPrice: Double? // previous days closing price
-    var priceChange: Double? // change from previous days open till close
-    var priceChangePercent: Double? // percentage change from previous days open to its close
+    var currentPrice: Double?     // will be the previous days close price
+    var priceChange: Double?      // change from previous days open to its close
+    var priceChangePercent: Double? // percentage change from previous day's open to its close
     var isFavorite: Bool = false
-    
-    // initialiser
-    init(ticker: String, companyName: String, currentPrice: Double? = nil, priceChange: Double? = nil, priceChangePercent: Double? = nil, isFavorite: Bool = false) {
-        self.id = ticker
+
+    //for when data is combined from multiple API calls
+    init(id: String? = nil, ticker: String, companyName: String, currentPrice: Double? = nil, priceChange: Double? = nil, priceChangePercent: Double? = nil, isFavorite: Bool = false) {
+        self.id = id ?? ticker
         self.ticker = ticker
         self.companyName = companyName
         self.currentPrice = currentPrice
@@ -24,29 +24,28 @@ struct Stock: Identifiable, Decodable{
         self.isFavorite = isFavorite
     }
     
-    
     enum CodingKeys: String, CodingKey {
-         case id
-         case ticker
-         case companyName = "name" //
-         // price data populated elsewhere
-     }
-    
-    init(from decoder: Decoder) throws {
-       let container = try decoder.container(keyedBy: CodingKeys.self)
-       ticker = try container.decode(String.self, forKey: .ticker)
-       companyName = try container.decode(String.self, forKey: .companyName)
-       id = ticker // assign the ticker to an id
+        case ticker
+        case companyName = "name"
 
-       currentPrice = nil
-       priceChange = nil
-       priceChangePercent = nil
-       isFavorite = false // default
-   }
+    }
+    
+     init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        ticker = try container.decode(String.self, forKey: .ticker)
+        companyName = try container.decode(String.self, forKey: .companyName)
+        id = ticker // assign ticker to id as a default
+
+        // these will be nil or defaultas they are not in the primary decoding path for this init
+        currentPrice = nil
+        priceChange = nil
+        priceChangePercent = nil
+        isFavorite = false
+    }
 }
 
-// ref: https://polygon.io/docs/rest/stocks/tickers/ticker-overview
 
+// for ticker Search/v3/reference/tickers
 struct PolygonTickerSearchResponse: Decodable {
     let results: [PolygonTicker]?
     let status: String?
@@ -59,8 +58,17 @@ struct PolygonTickerSearchResponse: Decodable {
         case count
     }
 
+    init(from decoder: Decoder) throws {
+        let container = try decoder.container(keyedBy: CodingKeys.self)
+        results = try container.decodeIfPresent([PolygonTicker].self, forKey: .results)
+        status = try container.decodeIfPresent(String.self, forKey: .status)
+        requestId = try container.decodeIfPresent(String.self, forKey: .requestId)
+        count = try container.decodeIfPresent(Int.self, forKey: .count)
+    }
+}
 
 struct PolygonTicker: Decodable, Identifiable {
+    // this acts as a disting uuid for our app, distinct from the stocks actual ticker
     let id = UUID()
     let ticker: String
     let name: String
@@ -70,39 +78,50 @@ struct PolygonTicker: Decodable, Identifiable {
     let type: String?
     let active: Bool?
     let currencyName: String?
+    // let cik: String?
+    // let compositeFigi: String?
+    // let shareClassFigi: String?
     let lastUpdatedUTC: String?
 
     enum CodingKeys: String, CodingKey {
         case ticker, name, market, locale, type, active
         case primaryExchange = "primary_exchange"
         case currencyName = "currency_name"
+        // case cik
+        // case compositeFigi = "composite_figi"
+        // case shareClassFigi = "share_class_figi"
         case lastUpdatedUTC = "last_updated_utc"
     }
 }
 
-
-// previous day close: /v2/aggs/ticker/{stocksTicker}/prev
+// for prev day close /v2/aggs/ticker/{stocksTicker}/prev
 struct PolygonPrevDayCloseResponse: Decodable {
     let ticker: String?
     let status: String?
-    let results: [PolygonPrevDayData]?
+    // let queryCount: Int?
     let resultsCount: Int?
+    // let adjusted: Bool?
+    let results: [PolygonPrevDayData]?
 }
 
 struct PolygonPrevDayData: Decodable {
-    let openPrice: Double // o = open price
-    let closePrice: Double // c = closing price
-    let highPrice: Double // h = high price
-    let lowPrice: Double // l = low price
-    let volume: Double? // v = volume
-    let volumeWeightedAveragePrice: Double? // vw = volume weighted average price ??? idk
+    let openPrice: Double         // o
+    let highPrice: Double         // h
+    let lowPrice: Double          // l
+    let closePrice: Double        // c
+    let volume: Double?           // v
+    let volumeWeightedAveragePrice: Double? // vw, not actually sure what this is lol
+    // let transactions: Int?     // n, number of transactions
+    // let timestamp: Int?       // t
 
     enum CodingKeys: String, CodingKey {
         case openPrice = "o"
-        case closePrice = "c"
         case highPrice = "h"
         case lowPrice = "l"
+        case closePrice = "c"
         case volume = "v"
         case volumeWeightedAveragePrice = "vw"
+        // case timestamp = "t"
+        // case transactions = "n"
     }
 }
