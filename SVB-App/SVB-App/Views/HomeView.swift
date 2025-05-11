@@ -5,12 +5,13 @@
 //  Created by Tomi Nguyen on 9/5/2025.
 //
 
-import SwiftUI
+/*import SwiftUI
 
 struct HomeView: View {
     //FavouriteViewModel
     
     @StateObject private var viewModel:homeViewModel = HomeViewModel();
+    @StateObject private var favouriteViewModel:FavouriteViewModel = FavouriteViewModel();
     
     @State private var selectedTab : Tab = .allStocks
     
@@ -27,3 +28,4 @@ var body : some View {
         }
     }
 }
+*/
