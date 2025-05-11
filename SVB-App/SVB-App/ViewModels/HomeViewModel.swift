@@ -11,7 +11,7 @@ import Combine
 class HomeViewModel: ObservableObject {
     @Published var stocks: [Stock] = []
     @Published var isLoading: Bool = false
-    @Published var error:String? = nil
+    @Published var errorMessage:String? = nil
     
     private var cancellables = Set<AnyCancellable>()
     
@@ -21,7 +21,7 @@ class HomeViewModel: ObservableObject {
     
     func fetchInitialStocks(){
         isLoading = true
-        error = nil
+        errorMessage = nil
         
         DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
             guard let self = self else { return }
