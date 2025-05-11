@@ -33,7 +33,7 @@ class PersistenceService {
             
         }catch {
             print("FAILED TO ENCODE FAVOURITES STOCKS: \(error)")
-            throw PersistenceService.encodingFailed
+            throw PersistenceError.encodingFailed
         }
     }
  func loadFavorites() throws -> [Stock] {
