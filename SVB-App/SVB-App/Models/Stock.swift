@@ -33,8 +33,8 @@ struct Stock : Identifiable, Codable, Hashable {
     }
     
     static var sampleStocks :[Stock] = [
-        Stock(symbol:"AAPL",name: "Apple Inc.", price: 170.34,change: 1.5,changePercentage: 0.89,description: "Technology")
-        Stock(symbol: "MSFT", name: "Microsoft Corporation", price: 280.5, change: -0.25, changePercentage: "Technology")
+        Stock(symbol:"AAPL", name: "Apple Inc.", price: 170.34, change: 1.5, changePercentage: 0.89, description: "Technology"),
+        Stock(symbol: "MSFT", name: "Microsoft Corporation", price: 280.5, change: -0.25, changePercentage: -0.5,description:"Technology")
     ]
     }
-}
+
