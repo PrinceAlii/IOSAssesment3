@@ -24,7 +24,7 @@ class PersistenceService {
         self.userDefaults = userDefaults
     }
     
-    func saveFavorites(_ favorites: [Stock]) throws {
+    func saveFavorites( stocks: [Stock]) throws {
         
         do {
             let encoder = JSONEncoder()
