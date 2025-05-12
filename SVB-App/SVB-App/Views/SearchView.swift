@@ -51,8 +51,11 @@ struct SearchView: View {
                 } else {
                     // ** begin actual view **
                     List(viewModel.searchResults) { stock in
-                        StockSearchRow(stock: stock)
+                        NavigationLink(destination: StockDetailView(stock: stock)) {
+                            StockSearchRow(stock: stock)
+                        }
                     }
+
                     if !viewModel.isLoading && viewModel.searchResults.isEmpty && viewModel.searchText.count > 0 && viewModel.errorMessage == nil {
                         Text("No results found for \"\(viewModel.searchText)\". Try a different name")
                             .foregroundColor(.secondary)
