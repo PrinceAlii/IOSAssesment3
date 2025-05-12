@@ -4,7 +4,7 @@
 import SwiftUI
 import SwiftData
 
-// will need to change later, just set to this as this is our only viewß
+// will need to change later, just set to this as this is our only view
 @main
 struct SVB_AppApp: App {
     @StateObject private var searchVM = SearchViewModel(
