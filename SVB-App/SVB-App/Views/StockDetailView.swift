@@ -6,9 +6,11 @@
 //
 
 import SwiftUI
+import SwiftData
 
 struct StockDetailView: View {
     @StateObject private var viewModel: StockDetailViewModel
+    @Environment(\.modelContext) private var context
     @State private var selectedTab = 0
 
     init(stock: Stock) {
@@ -47,8 +49,11 @@ struct StockDetailView: View {
                 case 1:
                     NewsListView(viewModel: viewModel)
                 case 2:
-                    Text("Alerts coming soon.")
-                        .foregroundColor(.secondary)
+                    AlertConfigView(
+                        ticker: viewModel.stock.ticker,
+                        companyName: viewModel.stock.companyName,
+                        context: context
+                    )
                 default:
                     EmptyView()
                 }
@@ -90,7 +95,7 @@ struct StockDetailView: View {
                 }
             }
 
-            // Placeholder for your chart
+            // placeholder
             Rectangle()
                 .fill(Color.gray.opacity(0.3))
                 .frame(height: 200)

@@ -23,36 +23,6 @@ struct AlertConfigView: View {
 
     var body: some View {
         VStack(alignment: .leading) {
-            // Top nav bar
-            HStack {
-                Button(action: { /* back action */ }) {
-                    Image(systemName: "chevron.left")
-                }
-                Spacer()
-                VStack {
-                    Text(ticker)
-                        .font(.headline)
-                    if let name = companyName {
-                        Text(name)
-                            .font(.subheadline)
-                    }
-                }
-                Spacer()
-            }
-            .padding()
-
-            // Tab selector
-            HStack(spacing: 0) {
-                Button("Info") { /* switch */ }
-                    .frame(maxWidth: .infinity)
-                Button("News") { /* switch */ }
-                    .frame(maxWidth: .infinity)
-                Button("Alerts") { /* active */ }
-                    .frame(maxWidth: .infinity)
-                    .background(Color.gray.opacity(0.2))
-            }
-            .font(.subheadline)
-
             // Input section
             Text("Set Target Price")
                 .font(.headline)
@@ -94,7 +64,6 @@ struct AlertConfigView: View {
     }
 }
 
-#if DEBUG
 struct AlertConfigView_Previews: PreviewProvider {
     static var previewContainer: ModelContainer = {
         let schema = Schema([Alert.self])
@@ -108,7 +77,7 @@ struct AlertConfigView_Previews: PreviewProvider {
             try ctx.save()
             return container
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            fatalError("Could not create container: \(error)")
         }
     }()
 
@@ -122,4 +91,3 @@ struct AlertConfigView_Previews: PreviewProvider {
         .previewDevice("iPhone 16 Pro Max")
     }
 }
-#endif
