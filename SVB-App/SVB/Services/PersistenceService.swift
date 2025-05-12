@@ -10,6 +10,8 @@ import Foundation
 import SwiftData
 
 class PersistenceService {
+
+            
     static func fetchAlerts(for ticker: String, in context: ModelContext) -> [Alert] {
         let descriptor = FetchDescriptor<Alert>(
             predicate: #Predicate { $0.ticker == ticker },
