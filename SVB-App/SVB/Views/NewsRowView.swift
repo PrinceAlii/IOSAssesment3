@@ -9,10 +9,11 @@ import SwiftUI
 
 struct NewsRowView: View {
     let article: NewsArticle
+    @Environment(\.openURL) private var openURL
 
     var body: some View {
         VStack(alignment: .center, spacing: 8) {
-            
+
             if let imageUrl = article.imageURL, let url = URL(string: imageUrl) {
                 AsyncImage(url: url) { image in
                     image.resizable().aspectRatio(contentMode: .fit)
@@ -41,5 +42,10 @@ struct NewsRowView: View {
                 .frame(maxWidth: .infinity, alignment: .center)
         }
         .padding(.vertical, 8)
+        .onTapGesture {
+            if let url = URL(string: article.articleURL) {
+                openURL(url)
+            }
+        }
     }
 }
