@@ -7,26 +7,28 @@
 
 import Foundation
 
-@MainActor
 class StockDetailViewModel: ObservableObject {
-    @Published var stock: Stock
-    @Published var chartData: [Double] = [] // or a custom type
+    let stock: Stock
     @Published var news: [NewsArticle] = []
+    @Published var isLoadingNews = false
+    @Published var newsError: Error?
+
+    private let newsService = NewsService()
 
     init(stock: Stock) {
         self.stock = stock
-        Task {
-            await fetchChart()
-            await fetchNews()
+    }
+
+    @MainActor
+    func loadNews() async {
+        isLoadingNews = true
+        newsError = nil
+        do {
+            let fetchedNews = try await newsService.fetchNews(for: stock.ticker)
+            news = fetchedNews
+        } catch {
+            newsError = error
         }
-    }
-
-    func fetchChart() async {
-        // example call
-        // chartData = try await NetworkManager.shared.fetchData(...)
-    }
-
-    func fetchNews() async {
-        // news = try await NetworkManager.shared.fetchData(...)
+        isLoadingNews = false
     }
 }

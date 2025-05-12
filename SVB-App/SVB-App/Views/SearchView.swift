@@ -51,7 +51,7 @@ struct SearchView: View {
                 } else {
                     // ** begin actual view **
                     List(viewModel.searchResults) { stock in
-                        NavigationLink(destination: StockDetailView(viewModel: StockDetailViewModel(stock: stock))) {
+                        NavigationLink(destination: StockDetailView(stock: stock)) {
                             StockSearchRow(stock: stock)
                         }
                     }
