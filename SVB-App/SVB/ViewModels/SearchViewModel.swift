@@ -40,7 +40,7 @@ class SearchViewModel: ObservableObject {
 
                 self.searchResults = stocks
                 if stocks.isEmpty {
-                    self.errorMessage = "no results found for \"\(query)\"."
+                    self.errorMessage = "No results found for \"\(query)\""
                 }
                 self.isLoading = false
             } catch let networkError as NetworkManager.NetworkError {
@@ -48,30 +48,30 @@ class SearchViewModel: ObservableObject {
                 case .apiError(let message):
                     self.errorMessage = message
                 case .invalidURL:
-                    self.errorMessage = "invalid search URL. please try again"
+                    self.errorMessage = "A problem has occured when attempting to communicate with the API. (Request URL is malformed)"
                 case .requestFailed:
-                    self.errorMessage = "network request failed. check the connection"
+                    self.errorMessage = "Network error. Check your internet connection."
                 case .invalidResponse:
-                    self.errorMessage = "received an invalid response from the server"
+                    self.errorMessage = "The response received from the API is invalid. The API could be down, try again later."
                 case .decodingError:
-                    self.errorMessage = "failed to process search results. please try again"
+                    self.errorMessage = "A problem occured displaying the search results. (Decoding error)"
                 }
                 self.isLoading = false
             } catch let serviceError as StockService.ServiceError {
                  switch serviceError {
                     case .urlConstructionFailed:
-                        self.errorMessage = "could not construct search request"
+                        self.errorMessage = "A problem occured constructing the API request"
                     case .noPriceDataFound(let ticker):
-                        self.errorMessage = "price data not found for \(ticker)."
+                        self.errorMessage = "Pricing data is not availiable for: \(ticker)."
                     case .underlyingError(let error):
-                        self.errorMessage = "an unexpected error occurred: \(error.localizedDescription)"
+                        self.errorMessage = "A really bad error has occured; \(error.localizedDescription)"
                     case .apiKeyMissing:
                         self.errorMessage = "The API key cound not be found. (For the group: do you have a secrets.swift file in ur xcode project? make sure u have APIKEY=insertkeyhere in the first line. if u do, something has gone terribly wrong"
                  }
                 self.isLoading = false
             }
             catch {
-                self.errorMessage = "a rare and unexpected error occurred: \(error.localizedDescription)"
+                self.errorMessage = "A rare and unexpected error occurred: \(error.localizedDescription)"
                 self.isLoading = false
             }
         }
