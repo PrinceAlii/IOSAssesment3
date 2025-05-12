@@ -6,10 +6,6 @@
 	objectVersion = 77;
 	objects = {
 
-/* Begin PBXBuildFile section */
-		9247D74A2DD0B0100034CA8C /* secret.swift in Sources */ = {isa = PBXBuildFile; fileRef = 9247D7492DD0B00D0034CA8C /* secret.swift */; };
-/* End PBXBuildFile section */
-
 /* Begin PBXContainerItemProxy section */
 		281C74262DC9FEF4007466D5 /* PBXContainerItemProxy */ = {
 			isa = PBXContainerItemProxy;
@@ -31,7 +27,6 @@
 		281C74162DC9FEF2007466D5 /* SVB-App.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "SVB-App.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		281C74252DC9FEF4007466D5 /* SVB-AppTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SVB-AppTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		281C742F2DC9FEF4007466D5 /* SVB-AppUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "SVB-AppUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
-		9247D7492DD0B00D0034CA8C /* secret.swift */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.swift; path = secret.swift; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
@@ -80,7 +75,6 @@
 		281C740D2DC9FEF2007466D5 = {
 			isa = PBXGroup;
 			children = (
-				9247D7492DD0B00D0034CA8C /* secret.swift */,
 				9C91FA8F2DCEFC0900387D73 /* SVB-App */,
 				281C74282DC9FEF4007466D5 /* SVB-AppTests */,
 				281C74322DC9FEF4007466D5 /* SVB-AppUITests */,
@@ -242,7 +236,6 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				9247D74A2DD0B0100034CA8C /* secret.swift in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
