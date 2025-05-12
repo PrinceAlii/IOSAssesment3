@@ -13,9 +13,25 @@ struct NewsListView: View {
     var body: some View {
         Group {
             if viewModel.isLoadingNews {
-                ProgressView("Loading News…")
+                LoadingView()
             } else if let error = viewModel.newsError {
-                Text("Failed to load news: \(error.localizedDescription)")
+                ErrorView(
+                    message: "Failed to load news: \(error.localizedDescription)",
+                    retryAction: {
+                        Task {
+                            await viewModel.loadNews()
+                        }
+                    }
+                )
+            } else if viewModel.news.isEmpty {
+                VStack(spacing: 16) {
+                    Image(systemName: "exclamationmark.circle")
+                        .font(.largeTitle)
+                        .foregroundColor(.secondary)
+                    Text("No news found!")
+                        .foregroundColor(.secondary)
+                }
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
                 List(viewModel.news) { article in
                     NewsRowView(article: article)
