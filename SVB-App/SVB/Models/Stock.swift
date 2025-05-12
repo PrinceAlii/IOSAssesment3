@@ -27,7 +27,6 @@ struct Stock: Identifiable, Decodable {
     enum CodingKeys: String, CodingKey {
         case ticker
         case companyName = "name"
-
     }
     
      init(from decoder: Decoder) throws {
@@ -124,4 +123,21 @@ struct PolygonPrevDayData: Decodable {
         // case timestamp = "t"
         // case transactions = "n"
     }
+}
+
+struct StockBar: Identifiable, Decodable {
+    let id = UUID()
+    let o: Double // open
+    let h: Double // high
+    let l: Double // low
+    let c: Double // close
+    let t: TimeInterval // timestamp
+
+    enum CodingKeys: String, CodingKey {
+        case o, h, l, c, t
+    }
+}
+
+struct AggregateResponse: Decodable {
+    let results: [StockBar]?
 }

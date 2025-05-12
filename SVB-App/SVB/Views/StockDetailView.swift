@@ -7,6 +7,7 @@
 
 import SwiftUI
 import SwiftData
+import Charts
 
 struct StockDetailView: View {
     @StateObject private var viewModel: StockDetailViewModel
@@ -41,7 +42,6 @@ struct StockDetailView: View {
 
             Divider()
 
-            // Tab content
             Group {
                 switch selectedTab {
                 case 0:
@@ -62,6 +62,12 @@ struct StockDetailView: View {
             .animation(.easeInOut, value: selectedTab)
 
             Spacer()
+        }
+        .task {
+            let end = Date()
+            let start = Calendar.current.date(byAdding: .month, value: -1, to: end) ?? end
+            await viewModel.loadNews()
+            await viewModel.loadBars(from: start, to: end)
         }
     }
 
@@ -95,12 +101,30 @@ struct StockDetailView: View {
                 }
             }
 
-            // placeholder
-            Rectangle()
-                .fill(Color.gray.opacity(0.3))
+            // chart
+            if let bars = viewModel.bars {
+                Chart(bars) { bar in
+                    let date = Date(timeIntervalSince1970: bar.t / 1000)
+                    LineMark(
+                        x: .value("Date", date),
+                        y: .value("Close", bar.c)
+                    )
+                }
+                .chartXAxis { AxisMarks(values: .automatic) }
+                .chartYAxis { AxisMarks(position: .leading) }
                 .frame(height: 200)
-                .overlay(Text("Chart Placeholder"))
-
+                .padding(.top, 16)
+            } else if viewModel.isLoadingBars {
+                ProgressView()
+                    .frame(height: 200)
+                    .padding(.top, 16)
+            } else {
+                Rectangle()
+                    .fill(Color.gray.opacity(0.3))
+                    .frame(height: 200)
+                    .overlay(Text("Placeholder. If you see this, something has gone wrong generating a chart for this stock. Most likely this is due to data not being availiable from the API."))
+                    .padding(.top, 16)
+            }
         }
     }
 }
