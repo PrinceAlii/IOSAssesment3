@@ -9,10 +9,35 @@ import SwiftUI
 import SwiftData
 import Charts
 
+enum ChartPeriod: CaseIterable, Identifiable {
+    case sevenDay, oneMonth, sixMonth, oneYear, fiveYear
+    
+    var id: Self { self }
+    var title: String {
+        switch self {
+        case .sevenDay: return "7D"
+        case .oneMonth: return "1M"
+        case .sixMonth: return "6M"
+        case .oneYear: return "1Y"
+        case .fiveYear: return "5Y"
+        }
+    }
+    var components: DateComponents {
+        switch self {
+        case .sevenDay:  return DateComponents(day: -7)
+        case .oneMonth:  return DateComponents(month: -1)
+        case .sixMonth:  return DateComponents(month: -6)
+        case .oneYear:   return DateComponents(year: -1)
+        case .fiveYear:  return DateComponents(year: -5)
+        }
+    }
+}
+
 struct StockDetailView: View {
     @StateObject private var viewModel: StockDetailViewModel
     @Environment(\.modelContext) private var context
     @State private var selectedTab = 0
+    @State private var selectedPeriod: ChartPeriod = .oneMonth
 
     init(stock: Stock) {
         _viewModel = StateObject(wrappedValue: StockDetailViewModel(stock: stock))
@@ -64,12 +89,18 @@ struct StockDetailView: View {
             Spacer()
         }
         .task {
-            let end = Date()
-            let start = Calendar.current.date(byAdding: .month, value: -1, to: end) ?? end
+            let now = Date()
+            let from = Calendar.current.date(byAdding: selectedPeriod.components, to: now) ?? now
             await viewModel.loadNews()
-            await viewModel.loadBars(from: start, to: end)
+            await viewModel.loadBars(from: from, to: now)
+        }
+        .onChange(of: selectedPeriod) { newPeriod in
+            let now = Date()
+            let from = Calendar.current.date(byAdding: newPeriod.components, to: now) ?? now
+            Task { await viewModel.loadBars(from: from, to: now) }
         }
     }
+
 
     var infoTab: some View {
         VStack(alignment: .leading, spacing: 16) {
@@ -101,7 +132,21 @@ struct StockDetailView: View {
                 }
             }
 
-            // chart
+            ScrollView(.horizontal, showsIndicators: false) {
+                HStack(spacing: 8) {
+                    ForEach(ChartPeriod.allCases) { period in
+                        Button(period.title) {
+                            selectedPeriod = period
+                        }
+                        .padding(.vertical, 6)
+                        .padding(.horizontal, 12)
+                        .background(selectedPeriod == period ? Color.blue.opacity(0.2) : Color.clear)
+                        .cornerRadius(8)
+                    }
+                }
+                .padding(.horizontal)
+            }
+
             if let bars = viewModel.bars {
                 Chart(bars) { bar in
                     let date = Date(timeIntervalSince1970: bar.t / 1000)
@@ -113,17 +158,14 @@ struct StockDetailView: View {
                 .chartXAxis { AxisMarks(values: .automatic) }
                 .chartYAxis { AxisMarks(position: .leading) }
                 .frame(height: 200)
-                .padding(.top, 16)
             } else if viewModel.isLoadingBars {
                 ProgressView()
                     .frame(height: 200)
-                    .padding(.top, 16)
             } else {
                 Rectangle()
                     .fill(Color.gray.opacity(0.3))
                     .frame(height: 200)
-                    .overlay(Text("Placeholder. If you see this, something has gone wrong generating a chart for this stock. Most likely this is due to data not being availiable from the API."))
-                    .padding(.top, 16)
+                    .overlay(Text("The chart couldm't be generated. This is most likely due to an API error, or data restriction."))
             }
         }
     }
