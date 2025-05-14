@@ -1,10 +1,11 @@
 //
 //  SVB_AppApp.swift
+//  SVB-App
 //
+
 import SwiftUI
 import SwiftData
 
-// will need to change later, just set to this as this is our only view
 @main
 struct SVB_AppApp: App {
     @StateObject private var searchVM = SearchViewModel(
@@ -23,9 +24,15 @@ struct SVB_AppApp: App {
 
     var body: some Scene {
         WindowGroup {
-            SearchView()
-                .environmentObject(searchVM)
-                .modelContainer(sharedModelContainer)
+            ZStack {
+                Color.themeBackground
+                    .edgesIgnoringSafeArea(.all)
+
+                SearchView()
+                    .environmentObject(searchVM)
+                    .modelContainer(sharedModelContainer)
+                    .accentColor(.themePrimary)
+            }
         }
     }
 }
