@@ -18,7 +18,7 @@ struct NewsRowView: View {
                 AsyncImage(url: url) { image in
                     image.resizable().aspectRatio(contentMode: .fit)
                 } placeholder: {
-                    Color.gray.frame(height: 150)
+                    Color.themeBackground.frame(height: 150)
                 }
             }
 
