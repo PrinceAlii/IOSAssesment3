@@ -1,40 +1,36 @@
-//
-//  HomeViewModel.swift
-//  SVB-App
-//
-//  Created by Tomi Nguyen on 12/5/2025.
-//
-
 import Foundation
 import Combine
-import SwiftUI
 
 @MainActor
 class HomeViewModel: ObservableObject {
-    @Published var favouriteStocks:[Stock] = []
-    @Published var newsArticles : [NewsArticle] = []
-    @Published var searchText : String = ""
-    @Published var isLoadingFacvoriteStocks : Bool = false
-    @Published var isLoadingNews : Bool = false
-    @Published var errorMessages : String? = nil
     
+    @Published var favouriteStocks: [Stock] = []
+    @Published var latestNews: [NewsArticle] = []
     
-    private let stockService:StockService
-    private let newsService:NewsService
-    private let favouriteProvider:FavouriteProviding
+    private let stockService = StockService()
+    private let newsService = NewsService()
     
-    private var cancellables = Set<AnyCancellable>()
-    
-    init(stockService: StockService = StockService(),
-         newsService: NewsService = NewsService(),
-         favouriteProvider:FavouriteProviding) {
-        self.stockService = stockService
-        self.newsService = newsService
-        self.favouriteProvider = favouriteProvider
-        
-        fetchHomeData()
+    func fetchFavouriteStockDetails(favouriteTickers:[String]) async {
+        do {
+            var fetchedStocks : [Stock] = []
+            for ticker in favouriteTickers {
+                let stocks = try await stockService.searchStocks(query: ticker)
+                fetchedStocks.append(contentsOf: stocks)
+            }
+            self.favouriteStocks = fetchedStocks
+        } catch {
+            print("Error in fetching favourite stocks")
+        }
     }
     
-    func 
+    func fetchLatestNews(ticker:String) async {
+        do {
+            let news = try await newsService.fetchNews(for: ticker)
+            self.latestNews = news
+        } catch {
+            print("Error in fethcing news")
+        }
+    }
+    
     
 }

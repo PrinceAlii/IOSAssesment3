@@ -1,55 +1,57 @@
-//
-//  FavouriteViewModel.swift
-//  SVB-App
-//
-//  Created by Tomi Nguyen on 12/5/2025.
-//
-
 import Foundation
 import Combine
-import SwiftUI
 @MainActor
+class FavouriteViewModel: ObservableObject {
 
-class FavouriteViewModel: ObservableObject{
+    @Published private(set) var favouriteTickers: Set<String>
 
-    @Published private(set) var favouriteTickers:Set<String>
-    
-    private let userDefaultsKeys = "favouriteStockTickers"
-    
-    init(){
-        let savedTickers = UserDefaults.standard.stringArray( forKey : userDefaultsKeys) ?? []
+    private let userDefaultsKey = "favouriteStockTickers"
+
+    init() {
+        let savedTickers = UserDefaults.standard.stringArray(forKey: userDefaultsKey) ?? []
         self.favouriteTickers = Set(savedTickers)
-        print("Loaded Favourtioes:\(self.favouriteTickers)")
+        print("FavouriteViewModel: Loaded favourites - \(self.favouriteTickers)")
     }
-    
-    func getFavouriteTickers() -> Set<String>{
-        return favouriteTickers
+
+   
+    func isFavourite(ticker: String) -> Bool {
+        favouriteTickers.contains(ticker.uppercased()) // Store and check in uppercase for consistency
     }
-    
-    func toggleFavourite(ticker:String){
-        if favouriteTickers.contains(ticker){
-            favouriteTickers.remove(ticker)
-        }else {
-            addFavourite(ticker:ticker)
+
+
+    func toggleFavourite(ticker: String) {
+        let upperTicker = ticker.uppercased()
+        if isFavourite(ticker: upperTicker) {
+            removeFavourite(ticker: upperTicker)
+        } else {
+            addFavourite(ticker: upperTicker)
         }
     }
-    
-    private func addFavourite(ticker:String){
-        
+
+
+    private func addFavourite(ticker: String) {
         guard !favouriteTickers.contains(ticker) else { return }
-        print("Adding \(ticker) to favourites")
+        print("FavouriteViewModel: Adding \(ticker) to favourites")
         favouriteTickers.insert(ticker)
         saveFavourites()
     }
-    
-    private func saveFavourites(){
-        print("Saving Favourites:\(Array(favouriteTickers))")
-        UserDefaults.standard.set(Array(favouriteTickers), forKey: userDefaultsKeys)
+
+    private func removeFavourite(ticker: String) {
+        guard favouriteTickers.contains(ticker) else { return }
+        print("FavouriteViewModel: Removing \(ticker) from favourites")
+        favouriteTickers.remove(ticker)
+        saveFavourites()
+    }
+
+    private func saveFavourites() {
+        print("FavouriteViewModel: Saving favourites - \(Array(favouriteTickers))")
+        UserDefaults.standard.set(Array(favouriteTickers), forKey: userDefaultsKey)
+        
     }
     
-    func isFavourite(ticker:String) -> Bool{
-         favouriteTickers.contains(ticker)
+    
+    func getFavouriteTickers() -> [String] {
+        return Array(favouriteTickers)
     }
-    
-    
 }
+
