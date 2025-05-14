@@ -58,13 +58,30 @@ struct StockDetailView: View {
                     .frame(maxWidth: .infinity, alignment: .center)
             }
 
-            Picker("Select Tab", selection: $selectedTab) {
-                Text("Info").tag(0)
-                Text("News").tag(1)
-                Text("Alerts").tag(2)
+            HStack(spacing: 0) {
+              ForEach(0..<3) { idx in
+                let title = ["Info","News","Alerts"][idx]
+                Button(action: { selectedTab = idx }) {
+                  Text(title)
+                    .font(.subheadline)
+                    .bold()
+                    .frame(maxWidth: .infinity)
+                    .padding(.vertical, 8)
+                    .background(
+                      selectedTab == idx
+                        ? Color.themePrimary
+                        : Color.themeSecondary
+                    )
+                    .foregroundColor(
+                      selectedTab == idx
+                        ? Color.white
+                        : Color.themeText
+                    )
+                }
+              }
             }
-            .pickerStyle(SegmentedPickerStyle())
-            .tint(.themePrimary)
+            .background(Color.themeSecondary)
+            .clipShape(RoundedRectangle(cornerRadius: 8))
             .padding()
 
             Divider()
@@ -79,6 +96,7 @@ struct StockDetailView: View {
                     AlertConfigView(
                         ticker: viewModel.stock.ticker,
                         companyName: viewModel.stock.companyName,
+                        currentPrice: viewModel.stock.currentPrice,
                         context: context
                     )
                 default:
@@ -114,7 +132,7 @@ struct StockDetailView: View {
                 if let price = viewModel.stock.currentPrice {
                     Text("$\(price, specifier: "%.2f")")
                         .bold()
-                        .foregroundColor(.themeText)
+                        .foregroundColor(.themePrimary)
                 } else {
                     Text("N/A")
                         .foregroundColor(.themeText)
@@ -124,6 +142,7 @@ struct StockDetailView: View {
             HStack {
                 Text("Change:")
                     .font(.headline)
+                    .foregroundColor(.themeText)
                 Spacer()
                 if let pct = viewModel.stock.priceChangePercent {
                     let value = pct * 100
@@ -145,24 +164,34 @@ struct StockDetailView: View {
                         }
                         .padding(.vertical, 6)
                         .padding(.horizontal, 12)
-                        .background(selectedPeriod == period ? Color.blue.opacity(0.2) : Color.clear)
+                        .background(selectedPeriod == period ? Color.themePrimary.opacity(0.2) : Color.clear)
                         .cornerRadius(8)
                     }
                 }
                 .padding(.horizontal)
+                .foregroundColor(.themePrimary)
             }
 
             if let bars = viewModel.bars {
-                Chart(bars) { bar in
-                    let date = Date(timeIntervalSince1970: bar.t / 1000)
-                    LineMark(
-                        x: .value("Date", date),
-                        y: .value("Close", bar.c)
-                    )
+                Chart {
+                    ForEach(bars) { bar in
+                        let date = Date(timeIntervalSince1970: bar.t / 1000)
+                        AreaMark(
+                            x: .value("Date", date),
+                            y: .value("Close", bar.c)
+                        )
+                        .foregroundStyle(Color.themePrimary.opacity(0.2))
+                        LineMark(
+                            x: .value("Date", date),
+                            y: .value("Close", bar.c)
+                        )
+                        .foregroundStyle(Color.themePrimary)
+                    }
                 }
                 .chartXAxis { AxisMarks(values: .automatic) }
                 .chartYAxis { AxisMarks(position: .leading) }
                 .frame(height: 200)
+                .cornerRadius(8)
             } else if viewModel.isLoadingBars {
                 ProgressView()
                     .frame(height: 200)
@@ -170,7 +199,13 @@ struct StockDetailView: View {
                 Rectangle()
                     .fill(Color.gray.opacity(0.3))
                     .frame(height: 200)
-                    .overlay(Text("The chart couldm't be generated. This is most likely due to an API error, or data restriction."))
+                    .overlay(
+                        Text("The chart couldn't be generated. This is most likely due to an API error, or data restriction.")
+                            .font(.caption)
+                            .foregroundColor(.themeText)
+                            .multilineTextAlignment(.center)
+                            .padding()
+                    )
             }
         }
     }

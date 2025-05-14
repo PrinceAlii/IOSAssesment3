@@ -6,12 +6,34 @@
 //
 // UI for searching and displaying stocks
 import SwiftUI
+import UIKit
 
 struct SearchView: View {
     @StateObject private var viewModel: SearchViewModel
 
-    @MainActor
+    // Configure navigation bar appearance to use a theme for the title
     init(viewModel: SearchViewModel? = nil) {
+        let navBarAppearance = UINavigationBarAppearance()
+        navBarAppearance.configureWithOpaqueBackground()
+        
+        navBarAppearance.shadowColor = .clear
+        navBarAppearance.backgroundColor = UIColor.systemBackground
+        navBarAppearance.titleTextAttributes = [
+            .foregroundColor: UIColor(Color.themePrimary)
+        ]
+        navBarAppearance.largeTitleTextAttributes = [
+            .foregroundColor: UIColor(Color.themePrimary)
+        ]
+        UINavigationBar.appearance().standardAppearance = navBarAppearance
+        UINavigationBar.appearance().scrollEdgeAppearance = navBarAppearance
+    
+//        UISearchBar.appearance().barTintColor = UIColor(Color.themeSecondary.opacity(0.3))
+//
+//        UISearchBar.appearance().tintColor = UIColor(Color.themePrimary)
+//        UISearchBar.appearance().searchTextField.backgroundColor = UIColor(Color.themeSecondary.opacity(0.3))
+//        UISearchBar.appearance().searchTextField.textColor = UIColor(Color.themeText)
+//        UISearchBar.appearance().searchTextField.leftView?.tintColor = UIColor(Color.themePrimary)
+
         let vm = viewModel ?? SearchViewModel()
         _viewModel = StateObject(wrappedValue: vm)
     }
@@ -22,6 +44,7 @@ struct SearchView: View {
                 if viewModel.isLoading && viewModel.searchResults.isEmpty {
                     ProgressView("Searching...")
                         .padding()
+                        .foregroundColor(.themePrimary)
                     Spacer()
                 } else if let errorMessage = viewModel.errorMessage, viewModel.searchResults.isEmpty {
                     VStack {
@@ -34,7 +57,7 @@ struct SearchView: View {
                             .multilineTextAlignment(.center)
                             .padding(.horizontal)
                         if errorMessage.contains("API Key") {
-                             Text("The API KEY isn't detected, or something else with the API key has gone wrong :(")
+                            Text("The API KEY isn't detected, or something else with the API key has gone wrong :( ")
                                 .font(.caption)
                                 .foregroundColor(.gray)
                                 .multilineTextAlignment(.center)
@@ -49,28 +72,21 @@ struct SearchView: View {
                     .padding()
                     Spacer()
                 } else {
-                    // ** begin actual view **
                     List(viewModel.searchResults) { stock in
                         NavigationLink(destination: StockDetailView(stock: stock)) {
                             StockSearchRow(stock: stock)
                         }
                     }
-
-                    if !viewModel.isLoading && viewModel.searchResults.isEmpty && viewModel.searchText.count > 0 && viewModel.errorMessage == nil {
-                        Text("No results found for \"\(viewModel.searchText)\". Try a different name")
-                            .foregroundColor(.secondary)
-                            .padding()
-                        Spacer()
-                    } else if !viewModel.isLoading && viewModel.searchResults.isEmpty && viewModel.searchText.isEmpty && viewModel.errorMessage == nil {
-                         Text("Enter a stock ticker or company name to search")
-                            .foregroundColor(.secondary)
-                            .padding()
-                        Spacer()
-                    }
+                    .listStyle(.plain)
                 }
             }
             .navigationTitle("Search stocks")
-            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search ticker or company name")
+            .navigationBarTitleDisplayMode(.large)
+            .searchable(
+                text: $viewModel.searchText,
+                placement: .navigationBarDrawer(displayMode: .always),
+                prompt: "Search ticker or company name"
+            )
         }
     }
 }
@@ -84,6 +100,7 @@ struct StockSearchRow: View {
                 Text(stock.ticker)
                     .font(.headline)
                     .bold()
+                    .foregroundColor(.themeText)
                 Text(stock.companyName)
                     .font(.subheadline)
                     .foregroundColor(.gray)
@@ -96,12 +113,14 @@ struct StockSearchRow: View {
                 VStack(alignment: .trailing) {
                     Text(String(format: "%.2f", price))
                         .font(.headline)
-                    Text(String(format: "%@%.2f%%", changePercent >= 0 ? "+" : "", changePercent * 100))
+                    let pct = changePercent * 100
+                    let sign = pct >= 0 ? "+" : "-"
+                    Text("\(sign)\(String(format: "%.2f", abs(pct)))%")
                         .font(.subheadline)
-                        .foregroundColor(changePercent >= 0 ? .green : .red)
+                        .foregroundColor(pct >= 0 ? .themeAccent : .red)
                 }
             } else {
-                 Text("N/A")
+                Text("N/A")
                     .font(.subheadline)
                     .foregroundColor(.gray)
             }
@@ -118,6 +137,6 @@ struct SearchView_Previews: PreviewProvider {
             Stock(ticker: "AAPL", companyName: "Apple Inc.", currentPrice: 172.65, priceChange: 1.23, priceChangePercent: 0.0072, isFavorite: true),
             Stock(ticker: "TSLA", companyName: "Tesla Inc.", currentPrice: 245.12, priceChange: -3.87, priceChangePercent: -0.0156)
         ]
-        return SearchView()
+        return SearchView(viewModel: mockViewModel)
     }
 }

@@ -11,6 +11,11 @@ struct SVB_AppApp: App {
     @StateObject private var searchVM = SearchViewModel(
         stockService: StockService()
     )
+    
+    init() {
+        UIView.appearance(whenContainedInInstancesOf: [UINavigationController.self])
+            .tintColor = UIColor(Color.themePrimary)
+    }
 
     var sharedModelContainer: ModelContainer = {
         let schema = Schema([Alert.self])

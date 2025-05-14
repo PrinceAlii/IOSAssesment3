@@ -9,7 +9,7 @@ import SwiftUI
 
 struct NewsListView: View {
     @ObservedObject var viewModel: StockDetailViewModel
-
+    
     var body: some View {
         Group {
             if viewModel.isLoadingNews {
@@ -27,15 +27,22 @@ struct NewsListView: View {
                 VStack(spacing: 16) {
                     Image(systemName: "exclamationmark.circle")
                         .font(.largeTitle)
-                        .foregroundColor(.secondary)
+                        .foregroundColor(.themeBackground)
                     Text("No news found!")
                         .foregroundColor(.secondary)
                 }
                 .frame(maxWidth: .infinity, maxHeight: .infinity)
             } else {
-                List(viewModel.news) { article in
-                    NewsRowView(article: article)
+                List {
+                    ForEach(viewModel.news) { article in
+                        NewsRowView(article: article)
+                            .listRowBackground(Color.themeBackground)
+                            .listRowSeparator(.hidden)
+                    }
                 }
+                .listStyle(.plain)
+                .scrollContentBackground(.hidden)
+                .background(Color.themeBackground)
             }
         }
         .onAppear {
@@ -43,6 +50,5 @@ struct NewsListView: View {
                 await viewModel.loadNews()
             }
         }
-        //.navigationTitle("News for \(viewModel.stock.ticker)")
     }
 }
