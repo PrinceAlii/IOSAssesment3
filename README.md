@@ -22,5 +22,5 @@ The app we have chosen to develop will allow users to:
 ## Instructions
 1. Clone the repo to your Mac
 2. Rename the `secrets.swift.example` file located in `SVB-App/SVB-App` to `secrets.swift`
-3. Open `secrets.swift` and replace `enter api key here` with a free API key from [Polygon.io](https://polygon.io/)
+3. Open `secrets.swift` and replace `enter api key here` with a free API key from [Polygon.io](https://polygon.io/) (The free plan is limited to 5 API calls/minute. You may need to subscribe to their paid plan)
 4. Build and run the app!
