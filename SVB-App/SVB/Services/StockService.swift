@@ -1,5 +1,5 @@
 //
-//  StockService.swift
+//  NetworkManager.swift
 //  SVB-App
 //
 //  Created by Ali bonagdaran on 9/5/2025.
@@ -11,7 +11,7 @@ class StockService {
     private let networkManager = NetworkManager.shared
     private let apiKey = Secrets.apiKey
     private let polygonBaseURL = "https://api.polygon.io"
-
+    
     enum ServiceError: Error {
         case urlConstructionFailed
         case noPriceDataFound(ticker: String)
@@ -31,23 +31,26 @@ class StockService {
             print("problem finding tickers that match the query: '\(query)': \(error)")
             throw error
         }
-
+        
         guard !polygonTickers.isEmpty else {
             return []
         }
-
+        
         var stocks: [Stock] = []
-
+        
         // concurrently fetch previous days price details for each ticker
         try await withThrowingTaskGroup(of: Stock.self) { group in
             for pt in polygonTickers {
                 group.addTask {
-                    let prevDayData = await self.fetchPreviousDayDetails(for: pt.ticker)
+                    let prevDayData = await self.fetchPreviousDayDetails(
+                        for: pt.ticker
+                    )
                     if let data = prevDayData {
                         let currentPrice = data.closePrice
                         let openPrice = data.openPrice
                         let priceChange = currentPrice - openPrice
-                        let priceChangePercent = openPrice == 0 ? 0 : (priceChange / openPrice)
+                        let priceChangePercent =
+                        openPrice == 0 ? 0 : (priceChange / openPrice)
                         return Stock(
                             ticker: pt.ticker,
                             companyName: pt.name,
@@ -66,18 +69,26 @@ class StockService {
                 stocks.append(stock)
             }
         }
-
+        
         return stocks
     }
-
+    
     // fetches a list of tickers and companiy info matching the query string
-    private func fetchMatchingTickers(query: String) async throws -> [PolygonTicker] {
-        let encodedQuery = query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed) ?? ""
-        guard let url = URL(string: "\(polygonBaseURL)/v3/reference/tickers?search=\(encodedQuery)&active=true&limit=50&apiKey=\(apiKey)") else {
+    func fetchMatchingTickers(query: String) async throws -> [PolygonTicker] {
+        let encodedQuery =
+        query.addingPercentEncoding(withAllowedCharacters: .urlQueryAllowed)
+        ?? ""
+        guard
+            let url = URL(
+                string:
+                    "\(polygonBaseURL)/v3/reference/tickers?search=\(encodedQuery)&active=true&limit=50&apiKey=\(apiKey)"
+            )
+        else {
             throw ServiceError.urlConstructionFailed
         }
         print("fetching tickers from this url: \(url.absoluteString)")
-        let response: PolygonTickerSearchResponse = try await networkManager.fetchData(from: url)
+        let response: PolygonTickerSearchResponse =
+        try await networkManager.fetchData(from: url)
         return response.results ?? []
     }
     
@@ -85,98 +96,92 @@ class StockService {
     // returns: PolygonPrevDayData or nil if somethings gone wrong
     // takes the ticker symbol as its paramater
     private func fetchPreviousDayDetails(for tickerSymbol: String) async -> PolygonPrevDayData? {
-        guard let url = URL(string: "\(polygonBaseURL)/v2/aggs/ticker/\(tickerSymbol)/prev?apiKey=\(apiKey)") else {
-            print("failed to make the url to fetch previous day data for \(tickerSymbol)")
+        guard
+            let url = URL(
+                string:
+                    "\(polygonBaseURL)/v2/aggs/ticker/\(tickerSymbol)/prev?apiKey=\(apiKey)"
+            )
+        else {
+            print( "failed to make the url to fetch previous day data for \(tickerSymbol)")
             return nil
         }
-
+        
         do {
             print("fetching previous day data using url: \(url.absoluteString)")
-            let response: PolygonPrevDayCloseResponse = try await networkManager.fetchData(from: url)
+            let response: PolygonPrevDayCloseResponse =
+            try await networkManager.fetchData(from: url)
             return response.results?.first
         } catch {
-            print("something went wrong fetching the previous days data for ticker: \(tickerSymbol): \(error)")
+            print("something went wrong fetching the previous days data for ticker: \(tickerSymbol): \(error)"
+            )
             if let networkError = error as? NetworkManager.NetworkError {
-                print("network or api error for \(tickerSymbol): \(networkError)")
+                print("network or api error for \(tickerSymbol): \(networkError)"
+                )
             }
             return nil
         }
     }
     
-    public func fetchDetails(forTickers tickers: [String]) async -> [Stock] {
-            guard !tickers.isEmpty else {
-                return []
-            }
-
-            var detailedStocks: [Stock] = []
-
-            await withTaskGroup(of: Stock?.self) { group in
-                for tickerSymbol in tickers {
-                    group.addTask {
-                        guard let polygonTicker = await self.fetchSingleTickerReference(tickerSymbol: tickerSymbol) else {
-                            print("StockService: Could not get reference data (name) for ticker \(tickerSymbol).")
-                            return Stock(ticker: tickerSymbol, companyName: "Name lookup failed")
-                        }
-
-                        guard let prevDayData = await self.fetchPreviousDayDetails(for: polygonTicker.ticker) else {
-                            print("StockService: Price data not found for \(polygonTicker.ticker). Returning with name only.")
-                            return Stock(ticker: polygonTicker.ticker, companyName: polygonTicker.name)
-                        }
-
-                        let currentPrice = prevDayData.closePrice
-                        let openPrice = prevDayData.openPrice
-                        let priceChange = currentPrice - openPrice
-                        let priceChangePercent = openPrice == 0 ? 0 : (priceChange / openPrice)
-
+    func fetchDetails(forTickers tickers: [String]) async -> [Stock] {
+        guard !tickers.isEmpty else {
+            return []
+        }
+        
+        var detailedStocks: [Stock] = []
+        
+        await withTaskGroup(of: Stock?.self) { group in
+            for tickerSymbol in tickers {
+                group.addTask {
+                    guard
+                        let polygonTicker =
+                            await self.fetchSingleTickerReference(
+                                tickerSymbol: tickerSymbol
+                            )
+                    else {
+                        print("StockService: Could not get reference data (name) for ticker \(tickerSymbol).")
                         return Stock(
-                            ticker: polygonTicker.ticker,
-                            companyName: polygonTicker.name,
-                            currentPrice: currentPrice,
-                            priceChange: priceChange,
-                            priceChangePercent: priceChangePercent
+                            ticker: tickerSymbol,
+                            companyName: "Name lookup failed"
                         )
                     }
-                }
-
-                for await stockResult in group {
-                    if let stock = stockResult {
-                        detailedStocks.append(stock)
+                    
+                    guard
+                        let prevDayData = await self.fetchPreviousDayDetails(
+                            for: polygonTicker.ticker
+                        )
+                    else {
+                        print("StockService: Price data not found for \(polygonTicker.ticker). Returning with name only.")
+                        return Stock(
+                            ticker: polygonTicker.ticker,
+                            companyName: polygonTicker.name
+                        )
                     }
+                    
+                    let currentPrice = prevDayData.closePrice
+                    let openPrice = prevDayData.openPrice
+                    let priceChange = currentPrice - openPrice
+                    let priceChangePercent =
+                    openPrice == 0 ? 0 : (priceChange / openPrice)
+                    
+                    return Stock(
+                        ticker: polygonTicker.ticker,
+                        companyName: polygonTicker.name,
+                        currentPrice: currentPrice,
+                        priceChange: priceChange,
+                        priceChangePercent: priceChangePercent
+                    )
                 }
-            }
-            return detailedStocks
-        }
-
-        private func fetchSingleTickerReference(tickerSymbol: String) async -> PolygonTicker? {
-            struct SingleTickerLookupResponse: Decodable {
-                let results: PolygonTicker?
-                let status: String?
-            }
-
-            guard let url = URL(string: "\(polygonBaseURL)/v3/reference/tickers/\(tickerSymbol)?apiKey=\(self.apiKey)") else {
-                print("StockService: URL construction failed for single ticker reference: \(tickerSymbol)")
-                return nil
             }
             
-            print("StockService: Fetching single ticker reference: \(url.absoluteString)")
-            do {
-                let response: SingleTickerLookupResponse = try await networkManager.fetchData(from: url)
-                if response.status == "OK" {
-                    return response.results
-                } else {
-                    print("StockService: Status not OK for single ticker lookup \(tickerSymbol): \(response.status ?? "Unknown")")
-                    return nil
+            for await stockResult in group {
+                if let stock = stockResult {
+                    detailedStocks.append(stock)
                 }
-            } catch let error as NetworkManager.NetworkError {
-                print("StockService: NetworkError fetching single ticker reference for \(tickerSymbol): \(error)")
-                return nil
-            } catch {
-                print("StockService: Unknown error fetching single ticker reference for \(tickerSymbol): \(error)")
-                return nil
             }
         }
+        return detailedStocks
     }
-
+    
     func fetchBars(for ticker: String, from: Date, to: Date) async throws -> [StockBar] {
         let formatter = DateFormatter()
         formatter.dateFormat = "yyyy-MM-dd"
@@ -187,6 +192,42 @@ class StockService {
         }
         let response: AggregateResponse = try await networkManager.fetchData(from: url)
         return response.results ?? []
+    }
+    
+    // Toms code
+    func fetchSingleTickerReference(tickerSymbol: String) async -> PolygonTicker? {
+        struct SingleTickerLookupResponse: Decodable {
+            let results: PolygonTicker?
+            let status: String?
+        }
+        
+        guard
+            let url = URL(
+                string:
+                    "\(polygonBaseURL)/v3/reference/tickers/\(tickerSymbol)?apiKey=\(self.apiKey)"
+            )
+        else {
+            print("StockService: URL construction failed for single ticker reference: \(tickerSymbol)")
+            return nil
+        }
+        
+        print("StockService: Fetching single ticker reference: \(url.absoluteString)")
+        do {
+            let response: SingleTickerLookupResponse =
+            try await networkManager.fetchData(from: url)
+            if response.status == "OK" {
+                return response.results
+            } else {
+                print("StockService: Status not OK for single ticker lookup \(tickerSymbol): \(response.status ?? "Unknown")")
+                return nil
+            }
+        } catch let error as NetworkManager.NetworkError {
+            print("StockService: NetworkError fetching single ticker reference for \(tickerSymbol): \(error)")
+            return nil
+        } catch {
+            print("StockService: Unknown error fetching single ticker reference for \(tickerSymbol): \(error)")
+            return nil
+        }
     }
 }
 
