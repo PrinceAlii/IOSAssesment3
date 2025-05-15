@@ -72,3 +72,5 @@ fastlane/test_output
 .DS_Store
 SVB-App/SVB-App/secrets.swift
 SVB-App/SVB-App/Secrets.swift
+SVB-App/SVB.xcodeproj/project.pbxproj
+SVB-App/secrets.swift
