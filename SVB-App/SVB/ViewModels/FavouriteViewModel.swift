@@ -11,7 +11,7 @@ class FavouriteViewModel: ObservableObject {
         let savedTickers = UserDefaults.standard.stringArray(forKey: userDefaultsKey) ?? []
         self.favouriteTickers = Set(savedTickers)
         print("FavouriteViewModel: Loaded favourites - \(self.favouriteTickers)")
-    }
+    } 
 
    
     func isFavourite(ticker: String) -> Bool {

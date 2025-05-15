@@ -148,7 +148,7 @@ class StockService {
                             for: polygonTicker.ticker
                         )
                     else {
-                        print("price info not avaliable for \(pt.ticker). basic info shown only")
+                        print("price info not avaliable for \(polygonTicker.ticker). basic info shown only")
                         return Stock(
                             ticker: polygonTicker.ticker,
                             companyName: polygonTicker.name

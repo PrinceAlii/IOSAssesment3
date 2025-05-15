@@ -158,7 +158,6 @@ struct HomeView: View {
             .navigationBarHidden(true)
             .onAppear {
                 let favTickers = favouriteViewModel.getFavouriteTickers()
-                 print("[HomeView onAppear] Tickers from FavouriteViewModel: \(favTickers)")
                 Task {
                     await homeViewModel.fetchFavouriteStockDetails(favouriteTickers: favTickers)
                     
@@ -168,20 +167,15 @@ struct HomeView: View {
                     } else {
                         tickerForNews = "SPY"
                     }
-                    print("[HomeView onAppear] Fetching news for: \(tickerForNews)")
                     await homeViewModel.fetchLatestNews(ticker: tickerForNews)
                 }
             }
             .onChange(of: favouriteViewModel.favouriteTickers) { oldTickers, newTickers in
-                 print("[HomeView onChange] Favourite tickers changed.")
-                 print("[HomeView onChange] Old tickers: \(oldTickers)")
-                print("[HomeView onChange] New tickers: \(newTickers)")
-
+                
                 let addedTickers = newTickers.subtracting(oldTickers)
                 let removedTickers = oldTickers.subtracting(newTickers)
 
                 if !addedTickers.isEmpty {
-                     print("[HomeView onChange] Tickers were ADDED. Re-fetching details for all favourites.")
                     Task {
                         await homeViewModel.fetchFavouriteStockDetails(favouriteTickers: Array(newTickers))
                         var tickerForNewsUpdate: String
