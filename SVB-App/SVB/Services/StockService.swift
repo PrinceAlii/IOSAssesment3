@@ -1,5 +1,5 @@
 //
-//  NetworkManager.swift
+//  StockService.swift
 //  SVB-App
 //
 //  Created by Ali bonagdaran on 9/5/2025.
@@ -176,3 +176,17 @@ class StockService {
             }
         }
     }
+
+    func fetchBars(for ticker: String, from: Date, to: Date) async throws -> [StockBar] {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "yyyy-MM-dd"
+        let fromStr = formatter.string(from: from)
+        let toStr = formatter.string(from: to)
+        guard let url = URL(string: "\(polygonBaseURL)/v2/aggs/ticker/\(ticker)/range/1/day/\(fromStr)/\(toStr)?sort=asc&limit=500&apiKey=\(apiKey)") else {
+            throw ServiceError.urlConstructionFailed
+        }
+        let response: AggregateResponse = try await networkManager.fetchData(from: url)
+        return response.results ?? []
+    }
+}
+
