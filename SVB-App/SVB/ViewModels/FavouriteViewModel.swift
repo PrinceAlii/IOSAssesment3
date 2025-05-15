@@ -31,20 +31,17 @@ class FavouriteViewModel: ObservableObject {
 
     private func addFavourite(ticker: String) {
         guard !favouriteTickers.contains(ticker) else { return }
-        print("FavouriteViewModel: Adding \(ticker) to favourites")
         favouriteTickers.insert(ticker)
         saveFavourites()
     }
 
     private func removeFavourite(ticker: String) {
         guard favouriteTickers.contains(ticker) else { return }
-        print("FavouriteViewModel: Removing \(ticker) from favourites")
         favouriteTickers.remove(ticker)
         saveFavourites()
     }
 
     private func saveFavourites() {
-        print("FavouriteViewModel: Saving favourites - \(Array(favouriteTickers))")
         UserDefaults.standard.set(Array(favouriteTickers), forKey: userDefaultsKey)
         
     }
