@@ -59,7 +59,7 @@ class StockService {
                             priceChangePercent: priceChangePercent
                         )
                     } else {
-                        print("price data not found \(pt.ticker) during search. returning basic stock info only")
+                        print("price info not avaliable for \(pt.ticker). basic info shown only")
                         return Stock(ticker: pt.ticker, companyName: pt.name)
                     }
                 }
@@ -86,7 +86,6 @@ class StockService {
         else {
             throw ServiceError.urlConstructionFailed
         }
-        print("fetching tickers from this url: \(url.absoluteString)")
         let response: PolygonTickerSearchResponse =
         try await networkManager.fetchData(from: url)
         return response.results ?? []
@@ -107,7 +106,6 @@ class StockService {
         }
         
         do {
-            print("fetching previous day data using url: \(url.absoluteString)")
             let response: PolygonPrevDayCloseResponse =
             try await networkManager.fetchData(from: url)
             return response.results?.first
@@ -138,10 +136,10 @@ class StockService {
                                 tickerSymbol: tickerSymbol
                             )
                     else {
-                        print("StockService: Could not get reference data (name) for ticker \(tickerSymbol).")
+                        print("Could not obtain name from API for: \(tickerSymbol).")
                         return Stock(
                             ticker: tickerSymbol,
-                            companyName: "Name lookup failed"
+                            companyName: "[Error] Name lookup failed"
                         )
                     }
                     
@@ -150,7 +148,7 @@ class StockService {
                             for: polygonTicker.ticker
                         )
                     else {
-                        print("StockService: Price data not found for \(polygonTicker.ticker). Returning with name only.")
+                        print("price info not avaliable for \(pt.ticker). basic info shown only")
                         return Stock(
                             ticker: polygonTicker.ticker,
                             companyName: polygonTicker.name
@@ -207,25 +205,24 @@ class StockService {
                     "\(polygonBaseURL)/v3/reference/tickers/\(tickerSymbol)?apiKey=\(self.apiKey)"
             )
         else {
-            print("StockService: URL construction failed for single ticker reference: \(tickerSymbol)")
+            print("failed to construct url: \(tickerSymbol)")
             return nil
         }
         
-        print("StockService: Fetching single ticker reference: \(url.absoluteString)")
         do {
             let response: SingleTickerLookupResponse =
             try await networkManager.fetchData(from: url)
             if response.status == "OK" {
                 return response.results
             } else {
-                print("StockService: Status not OK for single ticker lookup \(tickerSymbol): \(response.status ?? "Unknown")")
+                print("rare error: \(tickerSymbol): \(response.status ?? "Unknown")")
                 return nil
             }
         } catch let error as NetworkManager.NetworkError {
-            print("StockService: NetworkError fetching single ticker reference for \(tickerSymbol): \(error)")
+            print("Network or API error for: \(tickerSymbol): \(error)")
             return nil
         } catch {
-            print("StockService: Unknown error fetching single ticker reference for \(tickerSymbol): \(error)")
+            print("catch all error: \(tickerSymbol): \(error)")
             return nil
         }
     }
