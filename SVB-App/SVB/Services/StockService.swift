@@ -102,4 +102,77 @@ class StockService {
             return nil
         }
     }
-}
+    
+    public func fetchDetails(forTickers tickers: [String]) async -> [Stock] {
+            guard !tickers.isEmpty else {
+                return []
+            }
+
+            var detailedStocks: [Stock] = []
+
+            await withTaskGroup(of: Stock?.self) { group in
+                for tickerSymbol in tickers {
+                    group.addTask {
+                        guard let polygonTicker = await self.fetchSingleTickerReference(tickerSymbol: tickerSymbol) else {
+                            print("StockService: Could not get reference data (name) for ticker \(tickerSymbol).")
+                            return Stock(ticker: tickerSymbol, companyName: "Name lookup failed")
+                        }
+
+                        guard let prevDayData = await self.fetchPreviousDayDetails(for: polygonTicker.ticker) else {
+                            print("StockService: Price data not found for \(polygonTicker.ticker). Returning with name only.")
+                            return Stock(ticker: polygonTicker.ticker, companyName: polygonTicker.name)
+                        }
+
+                        let currentPrice = prevDayData.closePrice
+                        let openPrice = prevDayData.openPrice
+                        let priceChange = currentPrice - openPrice
+                        let priceChangePercent = openPrice == 0 ? 0 : (priceChange / openPrice)
+
+                        return Stock(
+                            ticker: polygonTicker.ticker,
+                            companyName: polygonTicker.name,
+                            currentPrice: currentPrice,
+                            priceChange: priceChange,
+                            priceChangePercent: priceChangePercent
+                        )
+                    }
+                }
+
+                for await stockResult in group {
+                    if let stock = stockResult {
+                        detailedStocks.append(stock)
+                    }
+                }
+            }
+            return detailedStocks
+        }
+
+        private func fetchSingleTickerReference(tickerSymbol: String) async -> PolygonTicker? {
+            struct SingleTickerLookupResponse: Decodable {
+                let results: PolygonTicker?
+                let status: String?
+            }
+
+            guard let url = URL(string: "\(polygonBaseURL)/v3/reference/tickers/\(tickerSymbol)?apiKey=\(self.apiKey)") else {
+                print("StockService: URL construction failed for single ticker reference: \(tickerSymbol)")
+                return nil
+            }
+            
+            print("StockService: Fetching single ticker reference: \(url.absoluteString)")
+            do {
+                let response: SingleTickerLookupResponse = try await networkManager.fetchData(from: url)
+                if response.status == "OK" {
+                    return response.results
+                } else {
+                    print("StockService: Status not OK for single ticker lookup \(tickerSymbol): \(response.status ?? "Unknown")")
+                    return nil
+                }
+            } catch let error as NetworkManager.NetworkError {
+                print("StockService: NetworkError fetching single ticker reference for \(tickerSymbol): \(error)")
+                return nil
+            } catch {
+                print("StockService: Unknown error fetching single ticker reference for \(tickerSymbol): \(error)")
+                return nil
+            }
+        }
+    }
