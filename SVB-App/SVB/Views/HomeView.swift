@@ -73,7 +73,7 @@ struct HomeView: View {
                                 }
                             }
                             .listStyle(.plain)
-                            .frame(minHeight: 50, maxHeight: 250)
+                            .frame(minHeight: 70, maxHeight: 250)
                         }
                         
                         Divider()
@@ -214,10 +214,9 @@ struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
         let favouriteVM = FavouriteViewModel()
         favouriteVM.toggleFavourite(ticker: "AAPL")
+        favouriteVM.toggleFavourite(ticker:"MSFT")
         
         let homeVM = HomeViewModel()
-        homeVM.favouriteStocks = [Stock(ticker: "AAPL", companyName: "Apple Inc.", currentPrice: 170.0)] // Mock data
-        // homeVM.latestNews = [/* mock news articles */]
 
         return HomeView()
             .environmentObject(favouriteVM)

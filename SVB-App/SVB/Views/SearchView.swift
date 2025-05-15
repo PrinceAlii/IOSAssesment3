@@ -1,14 +1,8 @@
-//
-//  SearchView.swift
-//  SVB-App
-//
-//  Created by Ali bonagdaran on 10/5/2025.
-//
-// UI for searching and displaying stocks
 import SwiftUI
 
 struct SearchView: View {
     @StateObject private var viewModel: SearchViewModel
+    @EnvironmentObject private var favouriteViewModel: FavouriteViewModel
 
     @MainActor
     init(viewModel: SearchViewModel? = nil) {
@@ -16,8 +10,6 @@ struct SearchView: View {
         _viewModel = StateObject(wrappedValue: vm)
     }
     
-    //HomeView will add as a button
-
     var body: some View {
         NavigationView {
             VStack {
@@ -51,9 +43,8 @@ struct SearchView: View {
                     .padding()
                     Spacer()
                 } else {
-                    // ** begin actual view **
                     List(viewModel.searchResults) { stock in
-                        NavigationLink(destination: StockDetailView(stock: stock)) {
+                        NavigationLink(destination: StockDetailView(stock: stock).environmentObject(favouriteViewModel)) {
                             StockSearchRow(stock: stock)
                         }
                     }
@@ -73,12 +64,16 @@ struct SearchView: View {
             }
             .navigationTitle("Search stocks")
             .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search ticker or company name")
+            .onSubmit(of: .search) {
+                viewModel.performSearch()
+            }
         }
     }
 }
 
 struct StockSearchRow: View {
     let stock: Stock
+    @EnvironmentObject private var favouriteViewModel: FavouriteViewModel
 
     var body: some View {
         HStack {
@@ -94,18 +89,30 @@ struct StockSearchRow: View {
 
             Spacer()
 
-            if let price = stock.currentPrice, let changePercent = stock.priceChangePercent {
-                VStack(alignment: .trailing) {
-                    Text(String(format: "%.2f", price))
-                        .font(.headline)
-                    Text(String(format: "%@%.2f%%", changePercent >= 0 ? "+" : "", changePercent * 100))
+            HStack(spacing: 12) {
+                if let price = stock.currentPrice, let changePercent = stock.priceChangePercent {
+                    VStack(alignment: .trailing) {
+                        Text(String(format: "%.2f", price))
+                            .font(.headline)
+                        Text(String(format: "%@%.2f%%", changePercent >= 0 ? "+" : "", changePercent * 100))
+                            .font(.subheadline)
+                            .foregroundColor(changePercent >= 0 ? .green : .red)
+                    }
+                } else {
+                    Text("N/A")
                         .font(.subheadline)
-                        .foregroundColor(changePercent >= 0 ? .green : .red)
+                        .foregroundColor(.gray)
+                        .padding(.trailing)
                 }
-            } else {
-                 Text("N/A")
-                    .font(.subheadline)
-                    .foregroundColor(.gray)
+                
+                Button {
+                    favouriteViewModel.toggleFavourite(ticker: stock.ticker)
+                } label: {
+                    Image(systemName: favouriteViewModel.isFavourite(ticker: stock.ticker) ? "star.fill" : "star")
+                        .foregroundColor(.yellow)
+                        .font(.title3)
+                }
+                .buttonStyle(.plain)
             }
         }
         .padding(.vertical, 4)
@@ -114,12 +121,16 @@ struct StockSearchRow: View {
 
 struct SearchView_Previews: PreviewProvider {
     static var previews: some View {
-        // mock data so we dont get rate limited during testing
-        let mockViewModel = SearchViewModel()
-        mockViewModel.searchResults = [
-            Stock(ticker: "AAPL", companyName: "Apple Inc.", currentPrice: 172.65, priceChange: 1.23, priceChangePercent: 0.0072, isFavorite: true),
+        let mockSearchVM = SearchViewModel()
+        mockSearchVM.searchResults = [
+            Stock(ticker: "AAPL", companyName: "Apple Inc.", currentPrice: 172.65, priceChange: 1.23, priceChangePercent: 0.0072),
             Stock(ticker: "TSLA", companyName: "Tesla Inc.", currentPrice: 245.12, priceChange: -3.87, priceChangePercent: -0.0156)
         ]
-        return SearchView()
+
+        let mockFavouriteVM = FavouriteViewModel()
+        mockFavouriteVM.toggleFavourite(ticker: "AAPL")
+
+        return SearchView(viewModel: mockSearchVM)
+            .environmentObject(mockFavouriteVM)
     }
 }
