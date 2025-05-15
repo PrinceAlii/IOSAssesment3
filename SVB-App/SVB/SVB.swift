@@ -1,6 +1,6 @@
 //
-//  SVB_AppApp.swift
-//  SVB-App
+//  SVB.swift
+//  SVB
 //
 
 import SwiftUI
@@ -8,10 +8,9 @@ import SwiftData
 
 @main
 struct SVB_AppApp: App {
-    @StateObject private var searchVM = SearchViewModel(
-        stockService: StockService()
-    )
-    
+    @StateObject private var favouriteVM = FavouriteViewModel()
+    @StateObject private var homeVM = HomeViewModel()
+
     init() {
         UIView.appearance(whenContainedInInstancesOf: [UINavigationController.self])
             .tintColor = UIColor(Color.themePrimary)
@@ -23,7 +22,7 @@ struct SVB_AppApp: App {
         do {
             return try ModelContainer(for: schema, configurations: [config])
         } catch {
-            fatalError("Could not create ModelContainer: \(error)")
+            fatalError("couldnt create model container: \(error)")
         }
     }()
 
@@ -33,8 +32,9 @@ struct SVB_AppApp: App {
                 Color.themeBackground
                     .edgesIgnoringSafeArea(.all)
 
-                SearchView()
-                    .environmentObject(searchVM)
+                HomeView()
+                    .environmentObject(favouriteVM)
+                    .environmentObject(homeVM)
                     .modelContainer(sharedModelContainer)
                     .accentColor(.themePrimary)
             }
