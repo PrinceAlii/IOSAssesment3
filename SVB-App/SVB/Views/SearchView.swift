@@ -15,6 +15,8 @@ struct SearchView: View {
         let vm = viewModel ?? SearchViewModel()
         _viewModel = StateObject(wrappedValue: vm)
     }
+    
+    //HomeView will add as a button
 
     var body: some View {
         NavigationView {
