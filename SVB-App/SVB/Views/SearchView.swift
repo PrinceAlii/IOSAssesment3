@@ -1,84 +1,68 @@
+//  SearchView.swift
+//  SVB-App
+//
+//  Created by Ali bonagdaran on 10/5/2025.
+
 import SwiftUI
-import UIKit
 
 struct SearchView: View {
     @StateObject private var viewModel: SearchViewModel
-    @EnvironmentObject private var favouriteViewModel: FavouriteViewModel
 
-    // Configure navigation bar appearance to use a theme for the title
     init(viewModel: SearchViewModel? = nil) {
-        let navBarAppearance = UINavigationBarAppearance()
-        navBarAppearance.configureWithOpaqueBackground()
-        
-        navBarAppearance.shadowColor = .clear
-        navBarAppearance.backgroundColor = UIColor.systemBackground
-        navBarAppearance.titleTextAttributes = [
-            .foregroundColor: UIColor(Color.themePrimary)
-        ]
-        navBarAppearance.largeTitleTextAttributes = [
-            .foregroundColor: UIColor(Color.themePrimary)
-        ]
-        UINavigationBar.appearance().standardAppearance = navBarAppearance
-        UINavigationBar.appearance().scrollEdgeAppearance = navBarAppearance
-    
-//        UISearchBar.appearance().barTintColor = UIColor(Color.themeSecondary.opacity(0.3))
-//
-//        UISearchBar.appearance().tintColor = UIColor(Color.themePrimary)
-//        UISearchBar.appearance().searchTextField.backgroundColor = UIColor(Color.themeSecondary.opacity(0.3))
-//        UISearchBar.appearance().searchTextField.textColor = UIColor(Color.themeText)
-//        UISearchBar.appearance().searchTextField.leftView?.tintColor = UIColor(Color.themePrimary)
-
         let vm = viewModel ?? SearchViewModel()
         _viewModel = StateObject(wrappedValue: vm)
     }
     
     var body: some View {
-        NavigationView {
-            VStack {
-                if viewModel.isLoading && viewModel.searchResults.isEmpty {
-                    ProgressView("Searching...")
-                        .padding()
-                        .foregroundColor(.themePrimary)
-                    Spacer()
-                } else if let errorMessage = viewModel.errorMessage, viewModel.searchResults.isEmpty {
-                    VStack {
-                        Image(systemName: "exclamationmark.triangle.fill")
-                            .font(.largeTitle)
-                            .foregroundColor(.orange)
-                            .padding(.bottom)
-                        Text(errorMessage)
-                            .font(.headline)
+        VStack {
+            if viewModel.isLoading && viewModel.searchResults.isEmpty {
+                ProgressView("Searching...")
+                    .padding()
+                    .foregroundColor(.themePrimary)
+                Spacer()
+            } else if let errorMessage = viewModel.errorMessage, viewModel.searchResults.isEmpty {
+                VStack {
+                    Image(systemName: "exclamationmark.triangle.fill")
+                        .font(.largeTitle)
+                        .foregroundColor(.orange)
+                        .padding(.bottom)
+                    Text(errorMessage)
+                        .font(.headline)
+                        .multilineTextAlignment(.center)
+                        .padding(.horizontal)
+                    if errorMessage.contains("API Key") {
+                        Text("The API KEY isn't detected, or something else with the API key has gone wrong :(")
+                            .font(.caption)
+                            .foregroundColor(.gray)
                             .multilineTextAlignment(.center)
                             .padding(.horizontal)
-                        if errorMessage.contains("API Key") {
-                            Text("The API KEY isn't detected, or something else with the API key has gone wrong :( ")
-                                .font(.caption)
-                                .foregroundColor(.gray)
-                                .multilineTextAlignment(.center)
-                                .padding(.horizontal)
-                        }
-                        Button("Retry") {
-                            viewModel.performSearch()
-                        }
-                        .padding(.top)
-                        .buttonStyle(.borderedProminent)
                     }
-                    .padding()
-                    Spacer()
-                } else {
-                    List(viewModel.searchResults) { stock in
-                        NavigationLink(destination: StockDetailView(stock: stock).environmentObject(favouriteViewModel)) {
-                            StockSearchRow(stock: stock)
-                        }
+                    Button("Retry") {
+                        viewModel.performSearch()
                     }
-                    .listStyle(.plain)
+                    .padding(.top)
+                    .buttonStyle(.borderedProminent)
                 }
+                .padding()
+                Spacer()
+            } else {
+                List(viewModel.searchResults) { stock in
+                    NavigationLink(destination: StockDetailView(stock: stock)
+                                    .environmentObject(viewModel)) {
+                        StockSearchRow(stock: stock)
+                    }
+                }
+                .listStyle(.plain)
             }
-            .navigationTitle("Search stocks")
-            .searchable(text: $viewModel.searchText, placement: .navigationBarDrawer(displayMode: .always), prompt: "Search ticker or company name")
-            .onSubmit(of: .search) {
-                viewModel.performSearch()
-            }
+        }
+        .navigationTitle("Search stocks")
+        .navigationBarBackButtonHidden(false)
+        .searchable(
+            text: $viewModel.searchText,
+            prompt: "Search ticker or company name"
+        )
+        .onSubmit(of: .search) {
+            viewModel.performSearch()
         }
     }
 }

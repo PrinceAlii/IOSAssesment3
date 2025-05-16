@@ -17,6 +17,7 @@ struct FavouriteStockRowView: View {
                 Text(stock.ticker)
                     .font(.headline)
                     .bold()
+                    .foregroundColor(.primary)
                 Text(stock.companyName)
                     .font(.subheadline)
                     .foregroundColor(.gray)
@@ -29,6 +30,7 @@ struct FavouriteStockRowView: View {
                 if let price = stock.currentPrice {
                     Text(String(format: "%.2f", price))
                         .font(.headline)
+                        .foregroundColor(.primary)
                 } else {
                     Text("N/A")
                         .font(.headline)
