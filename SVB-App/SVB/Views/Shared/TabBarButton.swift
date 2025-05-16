@@ -1,3 +1,8 @@
+//  TabBarButton.swift
+//  SVB-App
+//
+//  Created by Tomi Nguyen on 15/5/2025.
+//
 
 import SwiftUI
 
@@ -13,10 +18,10 @@ struct TabBarButton : View {
             VStack(spacing: 4) {
                 Image(systemName: iconName)
                     .font(.title2)
-                    .foregroundColor(isSelect ? .blue: .gray)
+                    .foregroundColor(isSelect ? .themePrimary: .gray)
                 Text(text)
                     .font(.caption)
-                    .foregroundStyle(isSelect ?  .blue: .secondary)
+                    .foregroundColor(isSelect ?  .themePrimary: .secondary)
                 
             }
         }

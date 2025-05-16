@@ -1,14 +1,19 @@
+//  HomeView.swift
+//  SVB-App
+//
+//  Created by Tomi Nguyen on 15/5/2025.
+
 import SwiftUI
 
 struct HomeView: View {
     @StateObject private var homeViewModel = HomeViewModel()
     @EnvironmentObject private var favouriteViewModel: FavouriteViewModel
     @State private var selectedTab: Int = 0
-
+    
     var body: some View {
         NavigationView {
             VStack(spacing: 0) {
-                NavigationLink(destination: SearchView()){
+                NavigationLink(destination: SearchView()) {
                     HStack {
                         Image(systemName: "magnifyingglass")
                             .foregroundColor(.gray)
@@ -27,18 +32,20 @@ struct HomeView: View {
                     VStack(spacing: 0) {
                         HStack {
                             Text("Favourites")
-                                .font(.title2)
-                                .bold()
+                                .font(.title2).bold()
+                                .foregroundColor(.themePrimary)
                             Spacer()
                         }
                         .padding(.horizontal)
                         .padding(.top, 20)
                         .padding(.bottom, 5)
-
+                        
                         if homeViewModel.isLoadingFavourites {
                             ProgressView("Loading Favourites...")
                                 .padding()
+                                .foregroundColor(.themePrimary)
                                 .frame(maxWidth: .infinity, minHeight: 100)
+                            
                         } else if let errorMessage = homeViewModel.favouritesErrorMessage {
                             VStack(spacing: 8) {
                                 Image(systemName: "exclamationmark.triangle.fill")
@@ -59,6 +66,7 @@ struct HomeView: View {
                             }
                             .padding()
                             .frame(maxWidth: .infinity, minHeight: 100)
+                            
                         } else if homeViewModel.favouriteStocks.isEmpty {
                             Text("No favourites added yet.\nSearch for a stock and tap the star to add it to your watchlist.")
                                 .font(.subheadline)
@@ -66,23 +74,28 @@ struct HomeView: View {
                                 .multilineTextAlignment(.center)
                                 .padding()
                                 .frame(maxWidth: .infinity, minHeight: 100)
+                            
                         } else {
-                            List {
+                            VStack(spacing: 0) {
                                 ForEach(homeViewModel.favouriteStocks) { stock in
-                                    FavouriteStockRowView(stock: stock)
+                                    NavigationLink(
+                                        destination: StockDetailView(stock: stock)
+                                            .environmentObject(favouriteViewModel)
+                                    ) {
+                                        FavouriteStockRowView(stock: stock)
+                                    }
+                                    Divider()
                                 }
                             }
-                            .listStyle(.plain)
-                            .frame(minHeight: 70, maxHeight: 250)
+                            .padding(.horizontal)
                         }
                         
-                        Divider()
-                            .padding(.vertical, 10)
-
+                        Divider().padding(.vertical, 10)
+                        
                         HStack {
-                             Text("Latest News")
-                                .font(.title2)
-                                .bold()
+                            Text("Latest News")
+                                .font(.title2).bold()
+                                .foregroundColor(.themePrimary)
                             Spacer()
                         }
                         .padding(.horizontal)
@@ -104,8 +117,8 @@ struct HomeView: View {
                                     .padding(.horizontal)
                                 Button("Retry News") {
                                     Task {
-                                        let tickerForNews = homeViewModel.favouriteStocks.first?.ticker ?? "SPY"
-                                        await homeViewModel.fetchLatestNews(ticker: tickerForNews)
+                                        let ticker = homeViewModel.favouriteStocks.first?.ticker ?? "SPY"
+                                        await homeViewModel.fetchLatestNews(ticker: ticker)
                                     }
                                 }
                                 .buttonStyle(.bordered)
@@ -132,12 +145,9 @@ struct HomeView: View {
                     }
                     .padding(.bottom)
                 }
-
+                
                 Spacer()
-
-                Divider()
-                   .padding(.top, 5)
-
+                
                 HStack {
                     TabBarButton(iconName: "house.fill", text: "Home", isSelect: selectedTab == 0) {
                         selectedTab = 0
@@ -157,46 +167,18 @@ struct HomeView: View {
             .navigationTitle("Home")
             .navigationBarHidden(true)
             .onAppear {
-                let favTickers = favouriteViewModel.getFavouriteTickers()
+                let favs = favouriteViewModel.getFavouriteTickers()
                 Task {
-                    await homeViewModel.fetchFavouriteStockDetails(favouriteTickers: favTickers)
-                    
-                    var tickerForNews: String
-                    if let firstFavTicker = favTickers.first {
-                        tickerForNews = firstFavTicker
-                    } else {
-                        tickerForNews = "SPY"
-                    }
-                    await homeViewModel.fetchLatestNews(ticker: tickerForNews)
+                    await homeViewModel.fetchFavouriteStockDetails(favouriteTickers: favs)
+                    let ticker = favs.first ?? "SPY"
+                    await homeViewModel.fetchLatestNews(ticker: ticker)
                 }
             }
-            .onChange(of: favouriteViewModel.favouriteTickers) { oldTickers, newTickers in
-                
-                let addedTickers = newTickers.subtracting(oldTickers)
-                let removedTickers = oldTickers.subtracting(newTickers)
-
-                if !addedTickers.isEmpty {
-                    Task {
-                        await homeViewModel.fetchFavouriteStockDetails(favouriteTickers: Array(newTickers))
-                        var tickerForNewsUpdate: String
-                        if let firstFavTicker = newTickers.first {
-                            tickerForNewsUpdate = firstFavTicker
-                        } else {
-                            tickerForNewsUpdate = "SPY"
-                        }
-                        await homeViewModel.fetchLatestNews(ticker: tickerForNewsUpdate)
-                    }
-                } else if !removedTickers.isEmpty {
-                    
-                     Task {
-                        var tickerForNewsUpdate: String
-                        if let firstFavTicker = newTickers.first {
-                            tickerForNewsUpdate = firstFavTicker
-                        } else {
-                            tickerForNewsUpdate = "SPY"
-                        }
-                        await homeViewModel.fetchLatestNews(ticker: tickerForNewsUpdate)
-                     }
+            .onChange(of: favouriteViewModel.favouriteTickers) { old, new in
+                Task {
+                    await homeViewModel.fetchFavouriteStockDetails(favouriteTickers: Array(new))
+                    let ticker = new.first ?? "SPY"
+                    await homeViewModel.fetchLatestNews(ticker: ticker)
                 }
             }
         }
@@ -206,14 +188,12 @@ struct HomeView: View {
 
 struct HomeView_Previews: PreviewProvider {
     static var previews: some View {
-        let favouriteVM = FavouriteViewModel()
-        favouriteVM.toggleFavourite(ticker: "AAPL")
-        favouriteVM.toggleFavourite(ticker:"MSFT")
-        
+        let favVM = FavouriteViewModel()
         let homeVM = HomeViewModel()
-
+        favVM.toggleFavourite(ticker: "AAPL")
+        favVM.toggleFavourite(ticker: "MSFT")
         return HomeView()
-            .environmentObject(favouriteVM)
+            .environmentObject(favVM)
             .environmentObject(homeVM)
             .previewDevice("iPhone 15 Pro")
     }
